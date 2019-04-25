@@ -61,7 +61,8 @@ xjchen99@ustc.edu.cn}
 
 \begin{abstract}
 Video stitching remains a challenging problem in computer vision. In this paper, we propose a novel method to stitch multiple videos which have a small overlapped region.
-The algorithm consists of three steps: (1) calibrating the camera and projecting the video frame into spherical coordinates. (2) detecting the edges of each projected frame 
+The algorithm consists of three steps: (1) calibrating the camera and projecting the video frame into spherical coordinates. (2) detecting the edges of each spherically
+warped frame 
 and calculating homegraphy matrix in each grid. (3) updating seam and stitching the origin videos to produce panoramic videos. The proposed method has proven to be
 more robust on small overlapped region. Experimental results show that our approach achieves better panoramic videos than state-of-the-art ones.
 \end{abstract}
@@ -82,7 +83,7 @@ analysis, video stitching has become a hot topic in recent years.
 
 However, in previous video stitching systems \cite{zheng2008stitching, guo2016joint, Jiang_2015_CVPR_Workshops, nie2018dynamic},
 cameras used to capture multiple videos usually have large overlap, which can be easily handled.
-Under this circumstance, there are lots of commercial softwares such as VideoStitch Studio \cite{videostitching}, AutoPano \cite{autopano},
+Under this condition, there are lots of commercial softwares such as VideoStitch Studio \cite{videostitching}, AutoPano \cite{autopano},
 compute a stitching model, which is usually a 2D transformation,
 according to the relative position and angle between two cameras. 
 When the overlap between cameras is very small, these methods and softwares can
@@ -110,9 +111,10 @@ Fig. \ref{fig:res} shows the video stitching process presented in this paper.
 
 \begin{figure*}
 \centering
-\includegraphics[scale=0.26]{picture39.png}
+\includegraphics[scale=0.54]{picture44.png}
 \caption{The pipeline of our video stitching algorithm. First, we pre-process the video data, such as calibrate the camera
-and project the video frame into spherical coordinates. Second, we detect the edge of each projected frame and re-calculate
+and project the video frame into spherical coordinates. Second, we detect the edge of each spherically
+warped frame and re-calculate
 homegraphy matrix in every grid. Third, update seam and stitch the videos to produce a panoramic video.}
 \label{fig:res}
 \end{figure*}
@@ -152,15 +154,15 @@ Different approaches have been proposed for different camera settings. In genera
 fixed cameras \cite{zheng2008stitching, he2010panoramic, Jiang_2015_CVPR_Workshops, perazzi2015panoramic, li2015efficient} 
 and moving cameras \cite{lin2016seamless, guo2016joint, nie2018dynamic}. In the fixed cameras category, 
 Zheng \textit{et al.} stitched the videos frame by frame just like image stitching \cite{zheng2008stitching}.
-Jiang \textit{et al.} proposed a method according to the former frame to stitch the video  \cite{Jiang_2015_CVPR_Workshops}.
+Jiang \textit{et al.} proposed spatial-temporal content-preserving warping (STCPW) to eliminate small deviations \cite{Jiang_2015_CVPR_Workshops}.
 In the moving cameras category, 
 Lin \textit{et al.} proposed a method which is for independently moved mobile devices.
 They recovered the 3D camera paths and a sparse set of 3D scene points to stitching videos \cite{lin2016seamless}.
-Guo \textit{et al.} estimated both inter
-motions and intra motions, then estimate the camera path, and finally stitching them together \cite{guo2016joint}.
+Guo \textit{et al.} calculated both inter
+motions and intra motions, then calculated the camera path, and finally stitching them together \cite{guo2016joint}.
 Nie \textit{et al.} which was similarly to \cite{guo2016joint} but could distinguish between right
 and false matches \cite{nie2018dynamic}. All these works have one thing in common, that
-is the overlap between the cameras is large. Under this circumstance, stitching 
+is the overlap between the cameras is large. Under this condition, stitching 
 become much more easier. However, in this paper, we will stitch videos
 which have a very small overlap between the cameras.
 
@@ -169,45 +171,48 @@ which have a very small overlap between the cameras.
 
 Fig. \ref{fig:res} shows the pipeline of our video stitching algorithm.
 The first step of our algorithm is calculating the parameters of the cameras, and projecting the origin video into a spherical coordinate system frame by frame, 
-see details in Sec. \ref{ssec:Pre-prepared}. The second step is to extract the edge on every frame and mesh the frame into grid and calculate homegraphy matrix in each grid. 
+see details in Sec. \ref{ssec:Pre-prepared}. The second step is extracting the edges on every frame and meshing the frame into grid and calculating homegraphy matrix in each grid. 
 Then matching the points in overlapped region which is described in Sec. \ref{ssec:edge-detection}. 
-The third step is to stitch them into a panoramic video according to the spatial-temporal information, as described in Sec \ref{ssec:stitching}.
+The third step is stitching them into a panoramic video according to the spatial-temporal information, as described in Sec \ref{ssec:stitching}.
 
 \subsection{Pre-process For Video Stitching}
 \label{ssec:Pre-prepared}
-Pre-process for video stitching composes of two parts, the one is calculating the parameters of the cameras, the other is to project the video into a new coordinate
+Pre-process for video stitching composes of two parts, the one is calculating the parameters of the cameras, the other is projecting the video into a new coordinate
 system. The parameters of a camera consist intrinsics and extrinsics. 
 %Because the camera is fixed on a tripod, we can easily calculate the extrinsics of the cameras. 
 According to \cite{zhang2000flexible}, we calculate the intrinsics and extrinsics of the cameras.
 Then video can be projected into spherical coordinate system.
 %Denote the origin video as $F_g$, and the projected video as $F$, 
-Let $\textbf{x} = [x \ y]^T$ be the point of projected frame $F$ and $\hat{\textbf{x}'} = [\hat{x}' \ \hat{y}']^T$ be the point of  calibrated frame $F_g$.
+Let $\textbf{x} = [x \ y]^T$ be the point of spherically
+warped frame $F$ and $\hat{\textbf{x}'} = [\hat{x}' \ \hat{y}']^T$ be the point of corrected frame $F_g$.
 %And denote $\hat{\textbf{x}}' = [\hat{x}' \ \hat{y}' \ \hat{z}']^T$ to be the spherical coordinates. Because the frames should be projected into the same coordinate system, the $\hat{\textbf{x}}'$
 %should be multiplied extrinsics matrix. 
 The relationship between $F$ and $F_g$ can be described as following equation:
 \begin{equation}
 \begin{aligned}
-x'=sinxcosy, y'&=siny, z'=cosxsiny\\
+\theta =\left(x-x_{c}\right) &/ f , \varphi =\left(y -y_{c}\right) / f \\
+x'=sin\theta cos\varphi, y'&=sin\varphi, z'=cos\theta sin\varphi \\
 \left[ \begin{array}{l}{\hat{x}} \\ {\hat{y}} \\ {\hat{z}}\end{array}\right]&=\textbf{R} \left[ \begin{array}{l}{x^{\prime}} \\ {y^{\prime}} \\ {z^{\prime}}\end{array}\right]\\
 \hat{x}'&=f\frac{\hat{x}}{\hat{z}}+x_c\\
 \hat{y}'&=f\frac{\hat{y}}{\hat{z}}+y_c
 \end{aligned}
 \end{equation}
-where $\textbf{R}$ stands for the extrinsics matrix. $x_c$ and $y_c$ stands for the center of $F$.
+where $\textbf{R}$ stands for the extrinsics matrix, $x_c$ and $y_c$ stands for the center of $F$, $f$ stands for the focal length of the camera.
 Fig \ref{fig:ori_cal_pro} shows the origin frame, 
-calibrated frame and projected frame. 
+corrected frame and spherically
+warped frame. 
 
 \begin{figure}[t]
 \centering
 \includegraphics[scale=0.23]{picture40.png}
-\caption{(a) shows the origin frame, (b) depicts the calibrated frame calculated from (a), (c) illustrates the projected frame calculated from (b).}
+\caption{(a) shows the origin frame, (b) depicts the corrected frame calculated from (a), (c) illustrates the spherically warped frame calculated from (b).}
 \label{fig:ori_cal_pro}
 \end{figure}
 \subsection{Edge Detection and Points Matching}
 \label{ssec:edge-detection}
 %After we got the projected frame, we can 
-Because the overlapped region is small, we can not match the feature points correctly. Although we got the projected frame, we still can not 
-match the feature points correctly because of the complicated scenes we captured. Under this circumstance, we propose to detect its edge and then match points according to the edge.
+Because the overlapped region is small, we can not match the feature points correctly. Although we got the spherically warped frame, we still can not 
+match the feature points correctly because of the complicated scenes we captured. Under this condition, we propose to detect its edge and then match points according to the edge.
 We use a matured method which is called holistically-nested edge detection (HED) \cite{xie2015holistically}. After we got the edge of each frame, we mesh every frame into $m \times n$
 girds. In the overlapped region, it can be easily to match the points after detecting its edge. Let $\textbf{a} = [i \ j]^T$ and $\textbf{a}' = [i' \ j']^T$ be matching points
 across overlapping frames $F_l$ and $F_r$. A projective warp or homegraphy aims to map $\textbf{a}$ to $\textbf{a}'$ following the relation:
@@ -231,8 +236,9 @@ Fig. \ref{fig:p8} illustrates the method we proposed.
 \begin{figure}[!htpb]
 \centering
 \includegraphics[scale=0.22]{picture41.png}
-\caption{First the projected frame will be detected by HED \cite{xie2015holistically}, and the edge detected frame mesh into $m \times n$ grids, then the overlapped region calculated its homegraphy matrix in grid $i$.
-Finally output a new frame combined with two edge detected frames. (a) depicts the projected frame, (b) shows the grids in each frames, (c) shows the new edge produced by (b).}
+\caption{First the spherically warped frame will be detected by HED \cite{xie2015holistically}, and the edge detected frame mesh into $m \times n$ grids, then the overlapped region calculated its homegraphy matrix in grid $i$.
+Finally output a new frame combined with two edge detected frames. (a) depicts the spherically
+warped frame, (b) shows the grids in each frames, (c) shows the new edge produced by (b).}
 \label{fig:p8}
 \end{figure}
 
@@ -270,7 +276,7 @@ Since there is no publicly available video stitching benchmark data, we evaluate
 video which we captured.  The video datasets are captured by six fixed cameras (Gopro Hero4 Black) with different views which are synchronized. 
 These videos are both captured by same type cameras and they are 1440p (1920 $\times$ 1440) at 24 fps.
 Because the overlapped region is very small, lots of method we listed in Sec. \ref{sec:related} failed to stitch them together.
-The compared methods include APAP and commercial software AutoPano. The video data used for APAP method in this paper was after pre-processed. We compare the result as image stitching on each frame firstly.
+The compared methods include APAP and commercial software AutoPano. The video data used in APAP method in this paper was pre-processed. We compare the result as image stitching on each frame firstly.
 %Fig. \ref{fig:pic14} shows the result between AutoPano and ours. 
 We randomly select one frame on image stitching. Fig. \ref{fig:pic17} shows the result of APAP, AutoPano and ours. 
 From Fig. \ref{fig:pic17} we can see the result of APAP 
@@ -314,8 +320,8 @@ We use Mean opinion score (MOS) to evaluate the panoramic video. We use 1-10, 10
 1 represents the worst quality of the video, 10 represents the best quality of the video, and the method of calculating MOS is as follows:
 $$MOS=\frac{\sum^{N}_{n=1}{R_n}}{N}$$
 where $N$ stands for the number of people scoring each method and $R_n$ stands for a user's score for each type of video. We take $N=250$ in this experiment.
-In the user study, 50 users completed the test according to the rules in which the video groups were random and the video types were random.
-And then calculated MOS for each method. Table \ref{tab1:table1} shows the comparison. The MOS of our method is much higher than the others.
+In the user study, 50 users use interface to score the videos. The videos show on the interface according to the rules in which the video groups were random and the video types were random.
+And then we calculated MOS for each method. Table \ref{tab1:table1} shows the comparison. The MOS of our method is much higher than the others.
 
 
 
@@ -323,7 +329,7 @@ And then calculated MOS for each method. Table \ref{tab1:table1} shows the compa
 \label{sec:conclusion}
 
 In this paper, we proposed a new method to stitch video which have a small overlapped region. We pre-process the video data, such as calibrate the camera and project the video frame into spherical
-spherical coordinates. We detect the edge of each projected frame and re-calculate homegraphy matrix in every grid. Using the time domain information to produce a panoramic video. 
+spherical coordinates. We detect the edge of each spherically warped frame and re-calculate homegraphy matrix in every grid. Using the time domain information to produce a panoramic video. 
 Experimental results show that our approach achieves a better panoramic video than state-of-the-art ones. Our algorithm improve image alignment accuracy and reducing artifacts caused by
 moving objects. In the future, we would like to speed up our algorithm.
 
