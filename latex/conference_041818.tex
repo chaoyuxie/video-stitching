@@ -61,8 +61,8 @@ xjchen99@ustc.edu.cn}
 
 \begin{abstract}
 Video stitching remains a challenging problem in computer vision. In this paper, we propose a novel method to stitch multiple videos which have a small overlapped region.
-The algorithm consists of three steps: (1) calibrating the camera and project the video frame into spherical coordinates. (2) detecting the edges of each projected frame 
-and calculate homegraphy matrix in each grid. (3) updating seam and stitch the origin video to produce a panoramic video. The proposed method has proven to be
+The algorithm consists of three steps: (1) calibrating the camera and projecting the video frame into spherical coordinates. (2) detecting the edges of each projected frame 
+and calculating homegraphy matrix in each grid. (3) updating seam and stitching the origin videos to produce panoramic videos. The proposed method has proven to be
 more robust on small overlapped region. Experimental results show that our approach achieves better panoramic videos than state-of-the-art ones.
 \end{abstract}
 
@@ -93,7 +93,7 @@ For example, a typical scenario we envision is: six cameras fixed on
 a tripod. Fig. \ref{fig:equipment} shows our device and the origin data. Although the field of view (FOV) of the cameras is very large, the overlap between the 
 cameras is still small. Stitching such six videos is very challenging due to two
 major reasons: (1) the captured videos have small overlap that the feature points can not be matched correctly 
-and (2) the structure of the building in the panoramic video could have ghost.
+and (2) the structure of buildings in the panoramic video could have ghost.
 To deal with this problem, we proposed a new method which can handle the problem that we have listed above.
 Different from the period work \cite{Jiang_2015_CVPR_Workshops}, we mainly focus on video stitching which has a small overlapping area.
 Our algorithm first calculate the parameters of the cameras, and then project
@@ -122,9 +122,9 @@ homegraphy matrix in every grid. Third, update seam and stitch the videos to pro
 
 In this section, we briefly review the most related works in image stitching and video stitching.\\
 {\bf Image Stitching}: Image stitching is a well-studied, yet still active research 
-area in \cite{paragios2006handbook, brown2007automatic,hartley2003multiple,lin2011smoothly, chang2014shape, zaragoza2013projective,lin2015adaptive,zhang2014parallax, gao2013seam, agarwala2004interactive}. 
+area in \cite{paragios2006handbook, brown2007automatic,hartley2003multiple,lin2011smoothly, chang2014shape, zaragoza2013projective,lin2015adaptive,zhang2014parallax, gao2013seam, agarwala2004interactive,gao2011constructing}. 
 Early methods adopted a single homegraphy to align images. The single homegraphy 
-is valid only when the camera only rotates around its optical center or the scene captured 
+is valid only when the camera rotates around its optical center or the scene captured 
 is planar \cite{hartley2003multiple}. When there is parallax between the images, 
 artifacts such as structure distortion and 
 ghost occur. In general, there are two kinds of stitching strategies: 
@@ -146,7 +146,8 @@ while Zhang and Liu looked for a homography that leads to a
 minimum energy seam to stitch large-parallax images \cite{zhang2014parallax}.
 In addition, several freewares and commercial softwares are available for performing image stitching.
 AutoStitch, Microsoft’s Image Compositing Editor, and Adobe's Photoshop CS6 mosaicing feature.\\
-{\bf Video Stitching}: Compared to image stitching, video stitching received much less attention.
+{\bf Video Stitching}: Compared to image stitching, video stitching received much less attention. 
+The main challenges are the moving objects in overlapped regions are difficult to handle and the complexity of the video stitching algorithm is too high.
 Different approaches have been proposed for different camera settings. In general, these can be divided into two categories: 
 fixed cameras \cite{zheng2008stitching, he2010panoramic, Jiang_2015_CVPR_Workshops, perazzi2015panoramic, li2015efficient} 
 and moving cameras \cite{lin2016seamless, guo2016joint, nie2018dynamic}. In the fixed cameras category, 
